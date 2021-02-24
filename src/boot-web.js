@@ -28,8 +28,9 @@ export default async ({ app, Vue }) => {
       addScriptTag()
 
       window.OneSignal = window.OneSignal || []
-      window.OneSignal.push(function () {
-        window.OneSignal.init(Object.assign(
+      window.OneSignal.push([
+        'init',
+        Object.assign(
           {
             appId,
             requiresUserPrivacyConsent: true,
@@ -42,17 +43,23 @@ export default async ({ app, Vue }) => {
             }
           },
           initConfig
-        ))
-      })
+        )
+      ])
     },
     optIn (externalUserId) {
       if (!onClient) {
         return
       }
-      window.OneSignal.provideUserConsent(true)
-      window.OneSignal.showNativePrompt()
+      window.OneSignal.push(function () {
+        window.OneSignal.provideUserConsent(true)
+      })
+      window.OneSignal.push(function () {
+        window.OneSignal.showNativePrompt()
+      })
       if (externalUserId) {
-        window.OneSignal.setExternalUserId(externalUserId)
+        window.OneSignal.push(function () {
+          window.OneSignal.setExternalUserId(externalUserId)
+        })
       }
     },
     optOut () {
